@@ -1,0 +1,50 @@
+# docker-compose.yml
+
+version: '3.8'
+services:
+  acapy:
+    build:
+      context: ../..
+      dockerfile: ./docker/Dockerfile.run
+    depends_on:
+      - db
+    ports:
+      - "${DIDCOMM_PORT}:${DIDCOMM_PORT}"
+      - "${ADMIN_API_PORT}:${ADMIN_API_PORT}"
+    entrypoint: /bin/bash
+    command: [
+      "-c",
+      "aca-py \
+      start \
+      --label ${LABEL} \
+      --inbound-transport http '0.0.0.0' ${DIDCOMM_PORT} \
+      --endpoint ${DIDCOMM_ENDPOINT} \
+      --outbound-transport http \
+      --admin '0.0.0.0' ${ADMIN_API_PORT} \
+      --admin-insecure-mode \
+      --auto-ping-connection \
+      --auto-respond-messages \
+      --auto-accept-invites \
+      --auto-accept-requests \
+      --auto-provision \
+      --preserve-exchange-records \
+      --wallet-type indy \
+      --wallet-name ${WALLET_NAME} \
+      --wallet-key ${WALLET_KEY} \
+      --wallet-storage-type postgres_storage \
+      --wallet-storage-config '{\"url\":\"db:${DB_PORT}\",\"wallet_scheme\":\"DatabasePerWallet\"}' \
+      --wallet-storage-creds '{\"account\":\"${DB_ACCOUNT_NAME}\",\"password\":\"${DB_ACCOUNT_PASSWORD}\",\"admin_account\":\"${DB_ACCOUNT_NAME}\",\"admin_password\":\"${DB_ACCOUNT_PASSWORD}\"}' \
+      --seed ${SEED} \
+      --genesis-url ${LEDGER_URL}/genesis \
+      --tails-server-base-url ${TAILS_URL} \
+      --notify-revocation \
+      --log-file /home/indy/logs/acapy.log \
+      --log-level ${LOG_LEVEL}",
+    ]
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_ACCOUNT_NAME}
+      POSTGRES_PASSWORD: ${DB_ACCOUNT_PASSWORD}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
