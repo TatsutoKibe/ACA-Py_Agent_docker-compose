@@ -12,3 +12,5 @@
 3. envファイルに記述された{}の値を変更し，compose upする．
 基本的にcomposeファイルを弄る必要はないが，webhookやaca-pyのコマンドを追加したい場合には変更可能である．
 変更する際にはenvファイルも確認し,適切に変更することが求められる．
+
+> https://tech.gmogshd.com/dev-env-4-indy-aries-with-docker/
